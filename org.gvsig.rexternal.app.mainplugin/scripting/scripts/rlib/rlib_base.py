@@ -41,7 +41,7 @@ class REngine_base(object):
   def getTemp(self,basename=None):
     if basename == None:
       return Utilities.TEMPDIRECTORYPATH
-    return Utilities.TEMPDIRECTORYPATH + "/" + basename
+    return os.path.normpath(Utilities.TEMPDIRECTORYPATH + "/" + basename)
     
   def addConsoleListener(self, function):
     if function == None:
@@ -112,7 +112,7 @@ class REngine_base(object):
 
   def getLayerDSN(self,pathname):
     pathname = self.getPathName(pathname)
-    return FilenameUtils.getFullPath(pathname)
+    return os.path.normpath(FilenameUtils.getFullPath(pathname))
 
   def getLayerName(self,pathname):
     pathname = self.getPathName(pathname)
