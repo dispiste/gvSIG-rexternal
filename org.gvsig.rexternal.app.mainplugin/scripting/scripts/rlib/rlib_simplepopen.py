@@ -79,7 +79,7 @@ class REngine_SimplePopen(rlib_base.REngine_base):
     script = self._script.getvalue()
     scriptFileName = Utilities.createTemp(self.getTemp("rtest-%08x.r" % t), script)
   
-    cmd = "%s -f %s 2>&1" % ( self.getRExecPathname(), scriptFileName.getAbsolutePath() )
+    cmd = '"%s" -f "%s" 2>&1' % ( self.getRExecPathname(), scriptFileName.getAbsolutePath() )
     self._child = os.popen(cmd,"r")
     for line in self._child:
       self.console_output(line)
