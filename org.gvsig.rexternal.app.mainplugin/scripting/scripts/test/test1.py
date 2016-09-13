@@ -1,5 +1,6 @@
 
 from gvsig import *
+import os
 
 import rlib
 reload(rlib)
@@ -9,7 +10,7 @@ def console(msg,otype=0):
 
 def main(*args):
   R = rlib.getREngine(console)
-  layer = str(script.getResource("data")) + "/contorno.shp"
+  layer = os.path.join(str(script.getResource("data")), "contorno.shp")
   R.setwd(R.getPathName(script.getResource("data")))
   R.source( R.getPathName(script.getResource("data/test.r")) )
   R.call("load_libraries")
