@@ -9,7 +9,7 @@ def isexe(fpath):
         
 def RShellWindows():
   RExe = rlib_base.REngine_base().getRExecPathname()
-  cmd='start /wait "%s" --ess --no-restore --no-save' % RExe
+  cmd='start "R terminal" /wait "%s" --ess --no-restore --no-save' % RExe
   os.system(cmd)
 
 def RShellLinux():
