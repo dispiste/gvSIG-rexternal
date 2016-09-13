@@ -1,0 +1,12 @@
+<project name="org.gvsig.r.app.mainplugin" default="main" basedir=".">
+  <target name="main">
+    <chmod file="${extensions_dir}/org.gvsig.r.app.mainplugin/R/bin/exec/R" perm="a+rx"/>
+    <chmod file="${extensions_dir}/org.gvsig.r.app.mainplugin/R/bin/R" perm="a+rx"/>
+    <chmod file="${extensions_dir}/org.gvsig.r.app.mainplugin/R/bin/Rcmd" perm="a+rx"/>
+    <chmod file="${extensions_dir}/org.gvsig.r.app.mainplugin/R/bin/Rscript" perm="a+rx"/>
+    <chmod file="${extensions_dir}/org.gvsig.r.app.mainplugin/R/bin/pager" perm="a+rx"/>
+    <chmod file="${extensions_dir}/org.gvsig.r.app.mainplugin/R/bin/BATCH" perm="a+rx"/>
+    <chmod file="${extensions_dir}/org.gvsig.r.app.mainplugin/R/bin/LINK" perm="a+rx"/>
+    <chmod file="${extensions_dir}/org.gvsig.r.app.mainplugin/R/bin/libtool" perm="a+rx"/>
+  </target>
+</project>

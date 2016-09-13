@@ -1,0 +1,15 @@
+[Unit]
+type = Script
+name = rlib_base
+description = 
+createdBy = 
+version = 
+
+[Script]
+main = main
+Lang = python
+
+[script]
+enable = true
+isolation = 0
+

@@ -1,0 +1,11 @@
+[Unit]
+type = Script
+name = rlib_simplepopen
+description = 
+createdBy = 
+version = 
+
+[Script]
+main = main
+Lang = python
+

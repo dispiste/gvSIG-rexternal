@@ -1,0 +1,15 @@
+[Unit]
+type = Script
+name = test
+description = 
+createdBy = 
+version = 
+
+[Script]
+main = main
+Lang = R
+
+[script]
+enable = true
+isolation = 0
+
