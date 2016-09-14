@@ -1,5 +1,5 @@
 #
-Wed, 14 Sep 2016 18:35:13 +0200
+Wed, 14 Sep 2016 19:00:44 +0200
 owner=gvSIG Association
 code=org.gvsig.rexternal.app.mainplugin
 java-version=j1_7
@@ -9,7 +9,7 @@ version=1.0.0
 state=testing
 operating-system=all
 dependencies=
-sources-url=
+sources-url=https\://github.com/dispiste/gvSIG-rexternal
 web-url=http\://www.gvsig.com
 architecture=all
 model-version=1.0.1

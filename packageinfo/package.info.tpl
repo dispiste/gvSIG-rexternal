@@ -9,7 +9,7 @@ version=#version#
 state=#state#
 operating-system=#operatingsystem#
 dependencies=
-sources-url=
+sources-url=https\://github.com/dispiste/gvSIG-rexternal
 web-url=http\://www.gvsig.com
 architecture=#architecture#
 model-version=#modelversion#
@@ -17,6 +17,6 @@ categories=
 description=Integration with R, a free software environment for statistical computing and graphics.\nThis plugin allows integration of gvSIG and R using the gvSIG scripting framework. It requires R to be externally installed
 owner-url=
 buildNumber=#buildNumber#
-download-url=http\://devel.gvsig.org/download/projects/gvsig-r/pool/org.gvsig.r.app.mainplugin/gvSIG-desktop-#gvSIGversion#-org.gvsig.rexternal.app.mainplugin-#version#-#state#-#operatingsystem#-#architecture#-#javaversion#.gvspki
+download-url=https\://github.com/dispiste/gvSIG-rexternal/blob/master/dist/gvSIG-desktop-#gvSIGversion#-org.gvsig.rexternal.app.mainplugin-#version#-#buildNumber#-#state#-#operatingsystem#-#architecture#-#javaversion#.gvspki?raw\=true
 gvSIG-version=#gvSIGversion#
 name=Rexternal
