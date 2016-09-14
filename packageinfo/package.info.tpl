@@ -1,5 +1,5 @@
 #
-#dateheader#
+##dateheader#
 owner=gvSIG Association
 code=org.gvsig.rexternal.app.mainplugin
 java-version=#javaversion#
