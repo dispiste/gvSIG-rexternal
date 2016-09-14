@@ -20,9 +20,13 @@ def RShellLinux():
     cmd = '/usr/bin/konsole -e "%s" --interactive --no-restore --no-save &' % RExe
   else:
     cmd='xterm -sb -rightbar -sl 1000 -fg gray -bg black -e "%s" --interactive --no-restore --no-save &' % RExe
-  print cmd
-  os.system(cmd)    
-  
+  os.system(cmd)
+
+def RShellMac():
+  RExe = rlib_base.REngine_base().getRExecPathname()
+  # FIXME: never tested
+  cmd = 'open -a Terminal.app -e "%s" --interactive --no-restore --no-save &' % RExe
+  os.system(cmd) 
 
 def main(*args):
   from org.gvsig.tools import ToolsLocator
@@ -35,6 +39,8 @@ def main(*args):
   
   elif operatingSystem == "lin":
     RShellLinux()
+  elif "mac" in operatingSystem or "darwin" in operatingSystem:
+    RShellMac()
 
   else:
     msgbox("Can't launch R console, don't identify the OS (%s)." % operatingSystem)
