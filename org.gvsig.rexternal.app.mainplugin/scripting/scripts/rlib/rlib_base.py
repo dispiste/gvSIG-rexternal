@@ -108,23 +108,54 @@ class REngine_base(object):
 
 
   def isLayerSupported(self,layer):
-    return self.getPathName(layer)!=None
+    return self.getLayerPath(layer)!=None
 
-  def getLayerDSN(self,pathname):
-    pathname = self.getPathName(pathname)
-    return os.path.normpath(FilenameUtils.getFullPath(pathname))
+  def getLayerDir(self, layer):
+    """
+    Gets the directory in which the layer is stored
+    
+    :param layer:     A DAL or Sextante layer, or a File object
+    :return:          A string representing the path
+    """
+    pathname = self.getLayerPath(layer)
+    return os.path.dirname(pathname)
 
-  def getLayerName(self,pathname):
-    pathname = self.getPathName(pathname)
-    return FilenameUtils.getBaseName(pathname)
+  def getLayerName(self,layer):
+    """
+    Gets the layer name as expected by OGR (without extension)
+    
+    :param layer:     A DAL or Sextante layer, or a File object
+    :return:         A string representing the layer name
+    """
+    pathname = self.getLayerPath(layer)
+    return os.path.splitext(os.path.basename(pathname))[0]
 
-  def getPathName(self,pathname):
-    getDataStore = getattr(pathname,"getDataStore", None)
-    if getDataStore == None:
-      getAbsolutePath = getattr(pathname,"getAbsolutePath",None)
-      if getAbsolutePath!=None:
-        pathname = getAbsolutePath()
-    else:
+  def getTablePath(self,table,unix_sep=False):
+    getDbObj = getattr(table,"getBaseDataObject", None)
+    if getDbObj != None
+      tbl = getDbObj()
+      return self.getLayerPath(tbl,unix_sep)
+
+  def getTableName(self,table,unix_sep=False):
+    getDbObj = getattr(table,"getBaseDataObject", None)
+    if getDbObj != None
+      tbl = getDbObj()
+      return self.getLayerName(tbl,unix_sep)
+
+  def getLayerPath(self,layer,unix_sep=False):
+    """
+    Gets the absolute path to the layer file
+
+    :param layer:     A DAL or Sextante layer, or a File object
+    :param unix_sep:  Converts the path to unix-style path separator
+                     ("/"), regardless the platform in which gvSIG
+                     is running. The default is to use the default
+                     platform separators
+    :return:          A string representing the path
+    """
+    pathname = layer
+    getDataStore = getattr(pathname,"getDataStore", getattr(pathname,"getFeatureStore", None))
+    if getDataStore != None:
       store = getDataStore()
       getParameters = getattr(store,"getParameters",None)
       if getParameters == None:
@@ -132,15 +163,30 @@ class REngine_base(object):
       parameters = getParameters()
       getFile = getattr(parameters,"getFile",None)
       if getFile == None:
-        return None
-      pathname = getFile()
-      if pathname == None:
-        return None
-      pathname = pathname.getAbsolutePath()
+        getURI = getattr(parameters,"getURI",None)
+        if getURI == None:
+          return None
+        pathname = getURI().toString()
+      else:
+        pathname = getFile()
+    if pathname:
+      if  getattr(pathname, "getAbsolutePath", None):
+        pathname = pathname.getAbsolutePath()
+      pathname = os.path.normpath(pathname)
+      if unix_sep:
+        if isinstance(pathname,str) or isinstance(pathname,unicode):
+          pathname = pathname.replace("\\","/")
+    return pathname
 
-    if isinstance(pathname,str) or isinstance(pathname,unicode):
-      return pathname.replace("\\","/")
-    return None
+  def getPathName(self,pathname):
+    """
+    Deprecated. Use getLayerPath
+    """
+    return self.getLayerPath(pathname)
 
-
+  def getLayerDSN(self,pathname):
+    """
+    Deprecated. Use getLayerDir
+    """
+    return self.getLayerDir(pathname)
 
