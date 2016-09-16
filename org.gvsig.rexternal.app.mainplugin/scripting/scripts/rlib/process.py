@@ -93,7 +93,7 @@ class RProcess(ToolboxProcess):
             except:
                 pass
             return parameter.getParameterValueAsDouble()
-
+    
     def _prepare_params(self):
         """Converts the algorithm parameters to a R-friendly array of values"""
         args = ()
@@ -105,24 +105,32 @@ class RProcess(ToolboxProcess):
             args += value
             i = i + 1
         return args
-        
+
+    def getOutputValue(self, outputParam):
+        if isinstance(outputParam, basestring):
+          outputSet = self.getOutputObjects()
+          outputName = outputParam
+          outputParam = outputSet.getOutput(outputParam)
+        else:
+          outputName = outputParam.getName()
+        if Class.forName("es.unex.sextante.outputs.OutputVectorLayer").isInstance(outputParam):
+          outLayerPath = self.getOutputChannel(outputName).toString()
+          outLayerName = self.R.getLayerName(outLayerPath)
+          return (outLayerPath, outLayerName)
+        elif Class.forName("es.unex.sextante.outputs.OutputRasterLayer").isInstance(outputParam):
+          outLayerPath = self.getOutputChannel(outputName).toString()
+          return (outLayerPath,)
+        elif Class.forName("es.unex.sextante.outputs.OutputTable").isInstance(outputParam):
+          outLayerPath = self.getOutputChannel(outputName).toString()
+          return (outLayerPath,)
+
     def _prepare_outputs(self):
         outputs = ()
         outputSet = self.getOutputObjects()
         i = 0
         while i < outputSet.getOutputObjectsCount():
           output = outputSet.getOutput(i)
-          outputName = output.getName()
-          if Class.forName("es.unex.sextante.outputs.OutputVectorLayer").isInstance(output):
-            outLayerPath = self.getOutputChannel(outputName).toString()
-            outLayerName = self.R.getLayerName(outLayerPath)
-            outputs += (outLayerPath, outLayerName)
-          elif Class.forName("es.unex.sextante.outputs.OutputRasterLayer").isInstance(output):
-            outLayerPath = self.getOutputChannel(outputName).toString()
-            outputs += (outLayerPath,)
-          elif Class.forName("es.unex.sextante.outputs.OutputTable").isInstance(output):
-            outLayerPath = self.getOutputChannel(outputName).toString()
-            outputs += (outLayerPath,)
+          outputs += self.getOutputValue(output)
           i = i + 1
         return outputs
 
