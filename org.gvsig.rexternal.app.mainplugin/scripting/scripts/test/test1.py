@@ -11,11 +11,11 @@ def console(msg,otype=0):
 def main(*args):
   R = rlib.getREngine(console)
   layer = os.path.join(str(script.getResource("data")), "contorno.shp")
-  R.setwd(R.getPathName(script.getResource("data")))
-  R.source( R.getPathName(script.getResource("data/test.r")) )
+  R.setwd(R.getLayerPath(script.getResource("data")))
+  R.source( R.getLayerPath(script.getResource("data/test.r")) )
   R.call("load_libraries")
   R.call("doalmostnothing", 
-    R.getLayerDSN(layer),
+    R.getLayerPath(layer),
     R.getLayerName(layer),
     R.getTemp("r-output.tif")
   )
@@ -50,3 +50,4 @@ def main(*args):
 </rprocess>
 
   """
+

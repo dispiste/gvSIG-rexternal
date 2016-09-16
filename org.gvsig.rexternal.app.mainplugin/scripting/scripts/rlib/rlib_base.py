@@ -132,13 +132,13 @@ class REngine_base(object):
 
   def getTablePath(self,table,unix_sep=False):
     getDbObj = getattr(table,"getBaseDataObject", None)
-    if getDbObj != None
+    if getDbObj != None:
       tbl = getDbObj()
       return self.getLayerPath(tbl,unix_sep)
 
   def getTableName(self,table,unix_sep=False):
     getDbObj = getattr(table,"getBaseDataObject", None)
-    if getDbObj != None
+    if getDbObj != None:
       tbl = getDbObj()
       return self.getLayerName(tbl,unix_sep)
 
@@ -189,4 +189,5 @@ class REngine_base(object):
     Deprecated. Use getLayerDir
     """
     return self.getLayerDir(pathname)
+
 

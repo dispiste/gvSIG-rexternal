@@ -1,0 +1,15 @@
+[Unit]
+type = Script
+name = process
+description = Convenience class to implement R geoprocess
+createdBy = Cesar Martinez Izquierdo
+version = 
+
+[Script]
+main = main
+Lang = python
+
+[script]
+enable = true
+isolation = 0
+
