@@ -25,6 +25,11 @@ def console(msg,otype=0):
 
  
 class RProcess(ToolboxProcess):
+    """
+    Convenience class to make easier the integration of R scripts
+    on the gvSIG/Sextante geoprocessing framework
+    Authoer: Cesar Martinez Izquierdo
+    """
     def __init__(self, rscript=None, wd=None):
         self.rscript = rscript
         self.wd = wd
