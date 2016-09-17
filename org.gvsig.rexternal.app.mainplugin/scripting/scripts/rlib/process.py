@@ -5,15 +5,13 @@ from gvsig.commonsdialog import *
 
 from gvsig.libs.toolbox import *
 from es.unex.sextante.dataObjects import IRasterLayer, IVectorLayer
-from  es.unex.sextante.additionalInfo import AdditionalInfoNumericalValue
+from es.unex.sextante.additionalInfo import AdditionalInfoNumericalValue
 from org.gvsig.geoprocess.lib.api import GeoProcessLocator
 from java.lang import Class
 
 from gvsig import uselib
 from org.gvsig.andami import PluginsLocator
 import os
-from org.apache.commons.io import FilenameUtils
-from org.slf4j import LoggerFactory
 
 #uselib.use_plugin("org.gvsig.rexternal.app.mainplugin")
 
@@ -27,7 +25,7 @@ def console(msg,otype=0):
 
  
 class RProcess(ToolboxProcess):
-    def __init__(self, rscript, wd=None):
+    def __init__(self, rscript=None, wd=None):
         self.rscript = rscript
         self.wd = wd
         ToolboxProcess.__init__(self)
