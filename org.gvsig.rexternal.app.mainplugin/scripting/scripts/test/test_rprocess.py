@@ -11,6 +11,15 @@ from gvsig import commonsdialog
 
 class TestProcess(RProcess):
     def __init__(self):
+        """
+        We'll define the script to execute and the working directory on this method.
+
+        Note that it's not mandatory to have a __init__ method, as it is
+        also possible to define rscript and wd in the defineChracteristics
+        method by using:
+        self.rscript = "/path/to/my/script.r"
+        self.wd = "/my/working/directory"
+        """
         plugin = PluginsLocator.getManager().getPlugin("org.gvsig.rexternal.app.mainplugin")
         pluginFolder = plugin.getPluginDirectory().getAbsoluteFile()
         rscript = os.path.join(str(pluginFolder), "scripting/scripts/test/data", "test.r")
@@ -23,10 +32,11 @@ class TestProcess(RProcess):
         # Process group
         self.setGroup("R processes")
         params = self.getParameters() 
-        # Define an input parameter, named LAYER, of type polygon and make it mandatory
-        params.addInputVectorLayer("LAYER","Input layer", IVectorLayer.SHAPE_TYPE_POLYGON, True)
-        # Define an output raster layer, name "RESULT_RASTER"
-        self.addOutputRasterLayer("RESULT_RASTER", "Output raster")
+        # Define an input vector parameter, named IN_VECTOR, of type polygon and make it mandatory
+        params.addInputVectorLayer("IN_VECTOR","Input vector layer", IVectorLayer.SHAPE_TYPE_POLYGON, True)
+        
+        # Define an output raster layer, name "OUT_RASTER"
+        self.addOutputRasterLayer("OUT_RASTER", "Output raster")
         
     def callRProcess(self, *args):
         """
@@ -34,24 +44,28 @@ class TestProcess(RProcess):
         """
         self.R.call("load_libraries")
         self.R.call("doalmostnothing", *args)
+
         """
-        Alternative way to individually access each parameter
-        layerDsn = args[0]
-        layerName = args[1]
-        outDsn = args[2]
-        self.R.call("doalmostnothing", layerDsn, layerName, outDsn)
-        """
-        
-        """
-        Alternative way2 to directly access params by name
-        # this gets a gvSIG/Sextante layer:
-        in_layer = self.getParamValue("LAYER")
+        Alternative way: directly access params by name
+
+        # this gets a gvSIG/Sextante layer object:
+        in_vector_layer = self.getParamValue("IN_VECTOR")
         # we use rlib to convert the layer to an OGR DSN and an OGR layer name
-        layerDsn = rlib.getLayerPath(in_layer)
-        layerName = rlib.getLayerName(in_layer)
+        in_vector_dsn = rlib.getLayerPath(in_vector_layer)
+        in_vector_name = rlib.getLayerName(in_vector_layer)
+
         # for output layers, getOutputValue directly returns a path, as the layer does not exist yet
-        outDsn = self.getOutputValue("RESULT_RASTER")
-        self.R.call("doalmostnothing", layerDsn, layerName, outDsn)
+        outRaster = self.getOutputValue("OUT_RASTER")
+        self.R.call("doalmostnothing", in_vector_dsn, in_vector_name, outRaster)
+        """
+
+        """
+        Alternative way: individually access each parameter
+
+        in_vector_dsn = args[0]
+        in_vector_name = args[1]
+        outRaster = args[3]
+        self.R.call("doalmostnothing", in_vector_dsn, in_vector_name, outRaster)
         """
 
 def main(*args):

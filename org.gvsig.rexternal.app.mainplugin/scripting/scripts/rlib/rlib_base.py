@@ -154,7 +154,10 @@ class REngine_base(object):
     :return:          A string representing the path
     """
     pathname = layer
-    getDataStore = getattr(pathname,"getDataStore", getattr(pathname,"getFeatureStore", None))
+    getBaseDataObject = getattr(pathname,"getBaseDataObject", None)
+    if getBaseDataObject:
+        pathname = getBaseDataObject()
+    getDataStore = getattr(pathname,"getDataStore", getattr(pathname,"getFeatureStore", getattr(pathname,"getStore", None)))
     if getDataStore != None:
       store = getDataStore()
       getParameters = getattr(store,"getParameters",None)

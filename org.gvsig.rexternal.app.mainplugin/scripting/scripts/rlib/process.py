@@ -17,11 +17,17 @@ import os
 
 import rlib_simplepopen
 import rlib_base
+from org.slf4j import LoggerFactory as LF
+
 #reload(rlib)
 
+
+__privateLogger = LF.getLogger(currentProject().getClass())
+
 def console(msg,otype=0):
-  logger(msg)
-  #print msg,
+    #logger(msg) # the normal scripting logger does not work in this context
+    #__privateLogger.info(msg)
+    print msg,
 
  
 class RProcess(ToolboxProcess):
@@ -34,6 +40,9 @@ class RProcess(ToolboxProcess):
         self.rscript = rscript
         self.wd = wd
         ToolboxProcess.__init__(self)
+
+    def getLogger():
+        return __privateLogger
  
     def defineCharacteristics(self):
         """
@@ -63,26 +72,26 @@ class RProcess(ToolboxProcess):
                             fed to R
         """
         if isinstance(parameter, basestring):
-          params = self.getParameters()
-          parameter = params.getParameter(parameter)
+            params = self.getParameters()
+            parameter = params.getParameter(parameter)
         if Class.forName("es.unex.sextante.parameters.ParameterVectorLayer").isInstance(parameter):
             layer = parameter.getParameterValueAsVectorLayer()
             if asPlainType:
-              return (self.R.getLayerPath(layer), self.R.getLayerName(layer))
+                return (self.R.getLayerPath(layer), self.R.getLayerName(layer))
             else:
-              return layer
+                return layer
         if Class.forName("es.unex.sextante.parameters.ParameterRasterLayer").isInstance(parameter):
             layer = parameter.getParameterValueAsRasterLayer()
             if asPlainType:
-              return self.R.getLayerPath(layer)
+                return self.R.getLayerPath(layer)
             else:
-              return layer
+                return layer
         if Class.forName("es.unex.sextante.parameters.ParameterTable").isInstance(parameter):
             table = parameter.getParameterValueAsTable()
             if asPlainType:
-              return self.R.getLayerPath(table)
+                return self.R.getLayerPath(table)
             else:
-              return table
+                return table
         if Class.forName("es.unex.sextante.parameters.ParameterBand").isInstance(parameter):
             return parameter.getParameterValueAsInt()
         if Class.forName("es.unex.sextante.parameters.ParameterString").isInstance(parameter):
@@ -96,45 +105,53 @@ class RProcess(ToolboxProcess):
             except:
                 pass
             return parameter.getParameterValueAsDouble()
+        return str(parameter)
     
     def _prepare_params(self):
         """Converts the algorithm parameters to a R-friendly array of values"""
-        args = ()
+        args = []
         params = self.getParameters()
         i = 0
         while i < params.getNumberOfParameters():
             param = params.getParameter(i)
             value = self.getParamValue(param, True)
-            args += value
+            if not isinstance(value, tuple):
+                args += [value]
+            else:
+                args += value
             i = i + 1
         return args
 
     def getOutputValue(self, outputParam):
         if isinstance(outputParam, basestring):
-          outputSet = self.getOutputObjects()
-          outputName = outputParam
-          outputParam = outputSet.getOutput(outputParam)
+            outputSet = self.getOutputObjects()
+            outputName = outputParam
+            outputParam = outputSet.getOutput(outputParam)
         else:
-          outputName = outputParam.getName()
+            outputName = outputParam.getName()
         if Class.forName("es.unex.sextante.outputs.OutputVectorLayer").isInstance(outputParam):
-          outLayerPath = self.getOutputChannel(outputName).toString()
-          outLayerName = self.R.getLayerName(outLayerPath)
-          return (outLayerPath, outLayerName)
+            outLayerPath = self.getOutputChannel(outputName).toString()
+            outLayerName = self.R.getLayerName(outLayerPath)
+            return (outLayerPath, outLayerName)
         elif Class.forName("es.unex.sextante.outputs.OutputRasterLayer").isInstance(outputParam):
-          outLayerPath = self.getOutputChannel(outputName).toString()
-          return (outLayerPath,)
+            outLayerPath = self.getOutputChannel(outputName).toString()
+            return outLayerPath
         elif Class.forName("es.unex.sextante.outputs.OutputTable").isInstance(outputParam):
-          outLayerPath = self.getOutputChannel(outputName).toString()
-          return (outLayerPath,)
+            outLayerPath = self.getOutputChannel(outputName).toString()
+            return outLayerPath
 
     def _prepare_outputs(self):
-        outputs = ()
+        outputs = []
         outputSet = self.getOutputObjects()
         i = 0
         while i < outputSet.getOutputObjectsCount():
-          output = outputSet.getOutput(i)
-          outputs += self.getOutputValue(output)
-          i = i + 1
+            output = outputSet.getOutput(i)
+            value = self.getOutputValue(output)
+            if not isinstance(value, tuple):
+                outputs += [value]
+            else:
+                outputs += value
+            i = i + 1
         return outputs
 
     def processAlgorithm(self):
@@ -143,11 +160,11 @@ class RProcess(ToolboxProcess):
         It can be overriden by subclasses if finer control is required for
         parameter preprocessing
         """
-        try:            
+        try:
             self.R = rlib_simplepopen.getREngine(console)
             params = self._prepare_params()
             outputs = self._prepare_outputs()
-            args = params + outputs
+            args = tuple(params + outputs)
             if self.wd:
                 self.R.setwd(self.wd)
             self.R.source(self.rscript)
@@ -163,5 +180,3 @@ class RProcess(ToolboxProcess):
         Calls the main method of the defined R script
         """
         self.R.call("main", *args)
-
-
