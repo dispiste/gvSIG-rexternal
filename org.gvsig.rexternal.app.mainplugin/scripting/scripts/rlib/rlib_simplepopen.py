@@ -39,10 +39,10 @@ class REngine_SimplePopen(rlib_base.REngine_base):
     self.eval("%s <- %s" % (name,value))
 
   def setwd(self,path):
-    self.eval('setwd("%s")' % self.getLayerPath(path))
+    self.eval('setwd("%s")' % self.normalizePath(path))
     
   def source(self, pathname):
-    return self.eval('source("%s")' % self.getLayerPath(pathname))
+    return self.eval('source("%s")' % self.normalizePath(pathname))
 
   def call(self, funcname, *args):
     cmd = StringIO.StringIO()
@@ -88,7 +88,7 @@ class REngine_SimplePopen(rlib_base.REngine_base):
     rlib_base.REngine_base.end(self)
   
 def getREngine(consoleListener=None):
-    return REngine_SimplePopen(consoleListener)
+  return REngine_SimplePopen(consoleListener)
 
 
 

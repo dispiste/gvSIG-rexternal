@@ -1,24 +1,12 @@
 # encoding: utf-8
 
-#
-# Funcion encargada de cargar las librerias necesarias
-#
 load_libraries <- function() {
   library(rgdal)
   library(raster)
   return(1)
 }
 
-#
-# Funcion a ejecutar
-# El nombre de la funcion variara segun el modelo
-# que se este ejecutando.
-#
-# - los archivos asociados a capas vectoriales (shapes), 
-#   se pasan con dos parametos, path y nombre (sin extension).
-# - Los raster con la ruta completa.
-#
-doalmostnothing<-function(shpdsn, shpname, inrasterpathname, outrasterpathname){
+doalmostnothing <- function(shpdsn, shpname, inrasterpathname, outrasterpathname){
   shp<-readOGR(dsn=shpdsn,layer=shpname)
   message("shp loaded")
   rasterimage<-raster(inrasterpathname)
@@ -27,3 +15,8 @@ doalmostnothing<-function(shpdsn, shpname, inrasterpathname, outrasterpathname){
   return (1)
 }
 
+main <- function(shpdsn, shpname, inrasterpathname, outrasterpathname){
+    load_libraries()
+    doalmostnothing(shpdsn, shpname, inrasterpathname, outrasterpathname)
+    return (1)
+}

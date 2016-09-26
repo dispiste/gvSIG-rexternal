@@ -3,7 +3,19 @@ from gvsig import *
 
 from org.apache.commons.io import FilenameUtils
 from org.gvsig.andami import Utilities
+from org.gvsig.tools import ToolsLocator
+from org.gvsig.andami import PluginsLocator
+from java.io import File
 import os
+from java.util import Properties
+from java.io import FileInputStream
+
+# it seems that the execution context is the one of the scripting plugin,
+# so we need to explicitly declare the dependence to rexternal plugin to access
+# jna-platform jars
+from gvsig import uselib
+uselib.use_plugin("org.gvsig.rexternal.app.mainplugin")
+
 
 class REngine_base(object):
   def __init__(self, consoleListener=None):
@@ -57,8 +69,6 @@ class REngine_base(object):
 
   def getArchitecture(self):
     if self._architecture == None:
-      from org.gvsig.tools import ToolsLocator
-
       pkgmanager = ToolsLocator.getPackageManager()
       self._operatingSystem = pkgmanager.getOperatingSystemFamily()
       self._architecture = pkgmanager.getArchitecture()
@@ -66,23 +76,16 @@ class REngine_base(object):
     
   def getOperatingSystem(self):
     if self._operatingSystem == None:
-      from org.gvsig.tools import ToolsLocator
-
       pkgmanager = ToolsLocator.getPackageManager()
       self._operatingSystem = pkgmanager.getOperatingSystemFamily()
       self._architecture = pkgmanager.getArchitecture()
     return self._operatingSystem
     
   def getRExecPathname(self):
-    from java.io import File
-    from org.gvsig.andami import PluginsLocator
-
     plugin = PluginsLocator.getManager().getPlugin("org.gvsig.rexternal.app.mainplugin")
     pluginFolder = plugin.getPluginDirectory().getAbsoluteFile()
 
     # create and load default properties
-    from java.util import Properties
-    from java.io import FileInputStream
     conf = Properties()
     in_stream = FileInputStream(File(pluginFolder, "rpath.properties"))
     conf.load(in_stream)
@@ -95,17 +98,91 @@ class REngine_base(object):
         if os.path.exists(os.path.join(pluginFolder.toString(), Rexe)):
           return os.path.join(pluginFolder.toString(), Rexe)
 
-    ## if R_BIN_PATH is empty, search Rexe in system path
+    ## if R_BIN_PATH is empty, search for Rexe
+    path = self._getFromRegistry()
+    if path:
+      return path
+    path = self._getFromWellKnownDirs()
+    if path:
+      return path
+    # search in system PATH as last resort
+    path = self._searchInPath()
+    if path:
+      return path
+    raise Exception("Automatic detection failed. Set R_BIN_PATH in rpath.properties")
+
+  def _getFromRegistry(self):
     if self.getOperatingSystem() == "win":
-      Rcmd = "R.exe"
+      try:
+        rbasepath = None
+        from com.sun.jna.platform.win32 import Advapi32Util
+        from com.sun.jna.platform.win32 import WinReg
+        versionKeyPath = "Software\R-core\R"
+        versionKey = "Current Version"
+        rKeyPath = "Software\R-core\R\%s"
+        rKey = "InstallPath"
+        version = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, versionKeyPath, versionKey)
+        if version:
+          rbasepath = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, rKeyPath%(version), rKey)
+        else:
+          version = Advapi32Util.registryGetStringValue(WinReg.HKEY_CURRENT_USER, versionKeyPath, versionKey)
+          if version:
+            rbasepath = Advapi32Util.registryGetStringValue(WinReg.HKEY_CURRENT_USER, rKeyPath%(version), rKey)
+        if rbasepath:
+          if "64" in self.getArchitecture():
+            suffix = "bin/x64/R.exe"
+          else:
+            suffix = "bin/i386/R.exe"
+          if os.path.exists(os.path.join(rbasepath, suffix)):
+            return os.path.join(rbasepath, suffix)
+      except:
+        pass
+            
+  def _getFromWellKnownDirs(self):
+    if self.getOperatingSystem() == "win":
+      # search for paths like: C:/Program Files/R/R-3.2.3/bin/x64/R.exe
+      programFiles = "C:/Program Files"
+      try:
+        # try to get the localized version of Program Files
+        from com.sun.jna.platform.win32 import Shell32Util
+        from com.sun.jna.platform.win32 import ShlObj
+        path = Shell32Util.getFolderPath(ShlObj.CSIDL_PROGRAM_FILES)
+        if path:
+            programFiles = path
+      except:
+          pass
+      basedir = os.path.join(programFiles, "R")
+      # We'll search for both 64 and 32 bits of R, as they should
+      # work correctly regardless the architecture of the JVM.
+      # But try the architecture of the JVM first
+      if "64" in self.getArchitecture():
+        suffixes = ["bin/x64/R.exe", "bin/i386/R.exe"]
+      else:
+        suffixes = ["bin/i386/R.exe", "bin/x64/R.exe"]
+      for suffix in suffixes:
+        for d in os.listdir(basedir):
+          if os.path.exists(os.path.join(basedir, d, suffix)):
+            return os.path.join(basedir, d, suffix)
     else:
-      Rcmd = "R"
+      # Linux and Mac 
+      if os.path.exists("/usr/bin/R"):
+        return "/usr/bin/R"
+      elif os.path.exists("/usr/local/bin/R"):
+        return "/usr/local/bin/R"
+      elif os.path.exists("/opt/local/bin/R"):
+        return "/opt/local/bin/R"
+      elif os.path.exists("/Library/Frameworks/R.framework/Current/Resources/bin/R"):
+        return "/Library/Frameworks/R.framework/Current/Resources/bin/R"
+
+  def _searchInPath(self):
+    if self.getOperatingSystem() == "win":
+      cmd = "R.exe"
+    else:
+      cmd = "R"
     for d in os.environ['PATH'].split(os.path.pathsep):
       Rexe = os.path.join(d, Rcmd)
       if os.path.exists(Rexe):
-        return Rexe
-    raise Exception("Operating system not supported.")
-
+        return Rexe        
 
   def isLayerSupported(self,layer):
     return self.getLayerPath(layer)!=None
@@ -130,19 +207,45 @@ class REngine_base(object):
     pathname = self.getLayerPath(layer)
     return os.path.splitext(os.path.basename(pathname))[0]
 
-  def getTablePath(self,table,unix_sep=False):
+  def normalizePath(self, path, unix_sep=True):
+    """
+    Converts to absolute path, normalizes (making all the path separators homogeneous)
+    and optionally converts to unix separator style
+    """
+    if path:
+      if getattr(path, "getAbsolutePath", None):
+        path = path.getAbsolutePath()
+      path = os.path.normpath(path)
+      if unix_sep:
+        if isinstance(path,str) or isinstance(path,unicode):
+          path = path.replace("\\","/")
+    return path
+
+  def getTablePath(self,table,unix_sep=True):
     getDbObj = getattr(table,"getBaseDataObject", None)
     if getDbObj != None:
-      tbl = getDbObj()
-      return self.getLayerPath(tbl,unix_sep)
+      table = getDbObj()
+    if getattr(table, "getStore", None):
+      store = table.getStore()
+      if getattr(store, "getParameters", None):
+        params = store.getParameters()
+        dbfFile = getattr(params, "dbfFile", None)
+        if dbfFile:
+          dbfFile = self.normalizePath(dbfFile, unix_sep)
+          return dbfFile
+        else:
+          getDbf = getattr(params, "getDBFFile", None)
+          if getDbf:
+            dbfFile = getDbf()
+            dbfFile = self.normalizePath(dbfFile, unix_sep)
+            return dbfFile
+    return self.getLayerPath(table,unix_sep)
 
-  def getTableName(self,table,unix_sep=False):
-    getDbObj = getattr(table,"getBaseDataObject", None)
-    if getDbObj != None:
-      tbl = getDbObj()
-      return self.getLayerName(tbl,unix_sep)
+  def getTableName(self,table):
+    p = self.getTablePath(table)
+    return os.path.splitext(os.path.basename(pathname))[0]
 
-  def getLayerPath(self,layer,unix_sep=False):
+  def getLayerPath(self,layer,unix_sep=True):
     """
     Gets the absolute path to the layer file
 
@@ -172,14 +275,7 @@ class REngine_base(object):
         pathname = getURI().toString()
       else:
         pathname = getFile()
-    if pathname:
-      if  getattr(pathname, "getAbsolutePath", None):
-        pathname = pathname.getAbsolutePath()
-      pathname = os.path.normpath(pathname)
-      if unix_sep:
-        if isinstance(pathname,str) or isinstance(pathname,unicode):
-          pathname = pathname.replace("\\","/")
-    return pathname
+	return self.normalizePath(pathname, unix_sep)
 
   def getPathName(self,pathname):
     """

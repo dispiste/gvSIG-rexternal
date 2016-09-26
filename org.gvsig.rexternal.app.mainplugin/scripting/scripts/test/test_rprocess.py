@@ -75,14 +75,16 @@ class TestProcess(RProcess):
         """
 
 class TestProcessAnother(RProcess):
-    def __init__(self):
+    """
+    We omit __init__ in this class (we use self.rscript and self.wd in defineCharacteristics instead)
+    We also omit callRProcess (as we have a main method in the test2.r script)
+    """
+    def defineCharacteristics(self):
         plugin = PluginsLocator.getManager().getPlugin("org.gvsig.rexternal.app.mainplugin")
         pluginFolder = plugin.getPluginDirectory().getAbsoluteFile()
-        rscript = os.path.join(str(pluginFolder), "scripting/scripts/test/data", "test2.r")
-        wd = os.path.join(str(pluginFolder), "scripting/scripts/test/data")
-        RProcess.__init__(self, rscript, wd)
+        self.rscript = os.path.join(str(pluginFolder), "scripting/scripts/test/data", "test2.r")
+        self.wd = os.path.join(str(pluginFolder), "scripting/scripts/test/data")
 
-    def defineCharacteristics(self):
         # Process name
         self.setName("Test R process bis")
         # Process group
@@ -96,14 +98,6 @@ class TestProcessAnother(RProcess):
 
         # Define an output raster layer, name "OUT_RASTER"
         self.addOutputRasterLayer("OUT_RASTER", "Output raster")
-        
-    def callRProcess(self, *args):
-        """
-        Calls the main method of the defined R script
-        """
-        self.R.call("load_libraries")
-        self.R.call("doalmostnothing", *args)
-
 
 
 def main(*args):

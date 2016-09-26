@@ -34,7 +34,7 @@ class RProcess(ToolboxProcess):
     """
     Convenience class to make easier the integration of R scripts
     on the gvSIG/Sextante geoprocessing framework
-    Authoer: Cesar Martinez Izquierdo
+    Author: Cesar Martinez Izquierdo
     """
     def __init__(self, rscript=None, wd=None):
         self.rscript = rscript
@@ -89,7 +89,7 @@ class RProcess(ToolboxProcess):
         if Class.forName("es.unex.sextante.parameters.ParameterTable").isInstance(parameter):
             table = parameter.getParameterValueAsTable()
             if asPlainType:
-                return self.R.getLayerPath(table)
+                return self.R.getTablePath(table)
             else:
                 return table
         if Class.forName("es.unex.sextante.parameters.ParameterBand").isInstance(parameter):
@@ -130,15 +130,13 @@ class RProcess(ToolboxProcess):
         else:
             outputName = outputParam.getName()
         if Class.forName("es.unex.sextante.outputs.OutputVectorLayer").isInstance(outputParam):
-            outLayerPath = self.getOutputChannel(outputName).toString()
+            outLayerPath = self.R.normalizePath(self.getOutputChannel(outputName).toString())
             outLayerName = self.R.getLayerName(outLayerPath)
             return (outLayerPath, outLayerName)
         elif Class.forName("es.unex.sextante.outputs.OutputRasterLayer").isInstance(outputParam):
-            outLayerPath = self.getOutputChannel(outputName).toString()
-            return outLayerPath
+            return self.R.normalizePath(self.getOutputChannel(outputName).toString())
         elif Class.forName("es.unex.sextante.outputs.OutputTable").isInstance(outputParam):
-            outLayerPath = self.getOutputChannel(outputName).toString()
-            return outLayerPath
+            return self.R.normalizePath(self.getOutputChannel(outputName).toString())
 
     def _prepare_outputs(self):
         outputs = []

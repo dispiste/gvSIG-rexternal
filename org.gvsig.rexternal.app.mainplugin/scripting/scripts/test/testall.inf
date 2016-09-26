@@ -1,0 +1,15 @@
+[script]
+enable = true
+isolation = 0
+
+[Unit]
+type = Script
+name = testall
+description = 
+createdBy = 
+version = 
+
+[Script]
+main = main
+Lang = python
+
