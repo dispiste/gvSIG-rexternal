@@ -180,7 +180,7 @@ class REngine_base(object):
     else:
       cmd = "R"
     for d in os.environ['PATH'].split(os.path.pathsep):
-      Rexe = os.path.join(d, Rcmd)
+      Rexe = os.path.join(d, cmd)
       if os.path.exists(Rexe):
         return Rexe        
 
@@ -243,7 +243,7 @@ class REngine_base(object):
 
   def getTableName(self,table):
     p = self.getTablePath(table)
-    return os.path.splitext(os.path.basename(pathname))[0]
+    return os.path.splitext(os.path.basename(p))[0]
 
   def getLayerPath(self,layer,unix_sep=True):
     """
@@ -275,7 +275,7 @@ class REngine_base(object):
         pathname = getURI().toString()
       else:
         pathname = getFile()
-	return self.normalizePath(pathname, unix_sep)
+    return self.normalizePath(pathname, unix_sep)
 
   def getPathName(self,pathname):
     """
