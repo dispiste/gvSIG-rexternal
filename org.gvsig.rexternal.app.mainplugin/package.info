@@ -1,11 +1,11 @@
 #
-#Thu, 22 Sep 2016 00:41:15 +0200
+#Mon, 26 Sep 2016 13:22:51 +0200
 owner=gvSIG Association
 code=org.gvsig.rexternal.app.mainplugin
 java-version=j1_7
 official=true
 type=plugin
-version=1.0.1
+version=1.0.2
 state=testing
 operating-system=all
 dependencies=
@@ -16,6 +16,6 @@ model-version=1.0.1
 categories=
 description=Integration with R, a free software environment for statistical computing and graphics.\nThis plugin allows integration of gvSIG and R using the gvSIG scripting framework. It requires R to be externally installed
 owner-url=
-buildNumber=2
+buildNumber=6
 gvSIG-version=2.3.0
 name=Rexternal
