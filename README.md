@@ -21,6 +21,13 @@ from the list of available plugins.
 
 Note that you may need to execute gvSIG as Administrator in order to install plugins in Windows
 
+## Configuration
+The R executable is usually autodetected by RExternal on Linux, Windows and Mac.
+
+If autodetection fails or you want to use a different R version available on
+your system, set the R_BIN_PATH variable on the file gvSIG/extensiones/org.gvsig.rexternal.app.mainplugin/rpath.properties
+(within your gvSIG installation).
+
 ## Integrating an R script on the gvSIG Toolbox
 Have a look at these [example scripts](https://github.com/dispiste/geostat2016/raw/master/scripts/scripts.zip)
 and [training materials](https://dispiste.github.io/geostat2016/gvsig-workshop/).
